@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+BUILDER=./.dist-newstyle/dev/build/*/ghc-8.6.5/*/x/dev/opt/build/dev/dev
+SERVER=./.dist-newstyle/server/build/*/ghc-8.6.5/*/x/server/opt/build/server/server
+
+pdf_flag=''
+epub_flag=''
+html_flag=''
+
+print_usage() {
+  echo "write - live writing of markdown-based book with pandoc compilation"
+  echo " "
+  echo "$0 [options]"
+  echo " "
+  echo "options:"
+  echo "-p                          compile to output.pdf on save"
+  echo "-e                          compile to output.ePub on save"
+  echo "-x                          compile to dist/index.html on save"
+  echo ""
+  echo "examples:"
+  echo "write -x                    compile to "
+  echo "write -pex                  compile to pdf, epub and html on save"
+}
+
+while getopts 'hpex' flag; do
+  case "${flag}" in
+    p)  pdf_flag='--pdf'  ;;
+    e) epub_flag='--epub' ;;
+    x) html_flag='--html' ;;
+    *) print_usage
+       exit 1 ;;
+  esac
+done
+
+if [ -n "$html_flag" ]; then
+  nix-shell --show-trace default.nix -A shells.ghc --run "cabal new-build server --enable-optimization=2 --builddir=./.dist-newstyle/server"
+  nix-shell default.nix -A shells.ghc --run "$SERVER --root ./dist +RTS -N -A32m" &
+fi
+nix-shell default.nix -A shells.ghc --run "cabal new-build dev --enable-optimization=2 --builddir=./.dist-newstyle/dev"
+clear
+nix-shell default.nix -A shells.ghc --run "export FONTCONFIG_PATH=$HOME/.nix-profile/etc/fonts && export FONTCONFIG_FILE=$HOME/.nix-profile/etc/fonts/fonts.conf && $BUILDER $pdf_flag $epub_flag $html_flag +RTS -N -A128m -I0 -RTS"

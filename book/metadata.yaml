@@ -1,0 +1,12 @@
+---
+title:
+- type: main
+  text: <title>
+- type: subtitle
+  text: <optional subtitle>
+toc-title: Contents
+creator:
+- role: author
+  text: <author>
+rights: © 2019 <author> 
+...
