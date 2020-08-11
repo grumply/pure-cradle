@@ -29,8 +29,8 @@ compile os = do
       cp_css :: String
       cp_css = "mkdir -p dist/book/ && cp book/book.css dist/book/book.css"
       html_command = pandoc html "dist/index.html" "--standalone"
-      epub_command = pandoc epub "output.epub" "--metadata-file=book/metadata.yaml --epub-embed-font='static/*.ttf'"
-      pdf_command  = pandoc pdf "output.pdf" ""
+      epub_command = pandoc epub "output.epub" "--metadata-file=book/metadata.yaml --epub-embed-font='book/static/*.ttf'"
+      pdf_command  = pandoc pdf "output.pdf" "--pdf-engine=xelatex --template=book/template.tex"
   status (Running command)
   spawn command
   status (Good [i|Built|])
@@ -41,4 +41,4 @@ compile os = do
       | otherwise = " : " -- bash no-op
 
     flags :: String
-    flags = [i|--css=book/book.css --table-of-contents --pdf-engine=xelatex --from=markdown --highlight-style=pygments -V documentclass=report -V papersize=A4 -V geometry:margin=1in|]
+    flags = [i|--css=book/book.css --table-of-contents --from=markdown --highlight-style=pygments|]
